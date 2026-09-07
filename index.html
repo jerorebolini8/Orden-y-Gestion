@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f1117">
+<title>Gasoil LQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{font-family:'Inter',sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh;overflow-x:hidden}
+button{cursor:pointer;border:none;font-family:'Inter',sans-serif}
+input,select{font-family:'Inter',sans-serif}
+select{-webkit-appearance:none;appearance:none}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#2d3147;border-radius:2px}
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#222537;--border:#2a2d3e;--text:#e2e8f0;--muted:#64748b;--gold:#f0b429;--green:#3ecf8e;--red:#e5534b;--blue:#4f8ef7;--purple:#a78bfa}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:20}
+.sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid var(--border)}
+.logo-mark{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--gold);letter-spacing:3px;margin-bottom:4px}
+.logo-name{font-size:19px;font-weight:700;color:var(--text);line-height:1}
+.sidebar-stock{padding:20px 24px;border-bottom:1px solid var(--border)}
+.sidebar-stock-label{font-size:10px;color:var(--muted);letter-spacing:.5px;margin-bottom:6px}
+.sidebar-stock-num{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--gold);line-height:1;transition:color .3s}
+.sidebar-stock-num.neg{color:var(--red)}
+.sidebar-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:2px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;transition:background .15s,color .15s;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:rgba(240,180,41,.1);color:var(--gold)}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+.sidebar-user{padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:rgba(240,180,41,.15);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--gold);flex-shrink:0}
+.user-name{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:10px;color:var(--muted)}
+.main{margin-left:220px;flex:1;min-height:100vh}
+.topbar{display:none}
+.page{display:none;padding:32px 36px;max-width:1100px}
+.page.active{display:block}
+.page-header{margin-bottom:28px}
+.page-title{font-size:22px;font-weight:700;color:var(--text)}
+.page-subtitle{font-size:13px;color:var(--muted);margin-top:4px}
+.kpi-row{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;margin-bottom:24px}
+.kpi-main{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px 28px;position:relative;overflow:hidden}
+.kpi-main::before{content:'';position:absolute;top:0;right:0;width:180px;height:100%;background:radial-gradient(ellipse at top right,rgba(240,180,41,.07) 0%,transparent 70%);pointer-events:none}
+.kpi-main-label{font-size:11px;color:var(--muted);letter-spacing:.5px;margin-bottom:10px}
+.kpi-main-num{font-family:'JetBrains Mono',monospace;font-size:52px;font-weight:700;color:var(--gold);line-height:1}
+.kpi-main-num.neg{color:var(--red)}
+.kpi-main-unit{font-size:18px;color:var(--muted);margin-left:4px}
+.kpi-main-sub{font-size:12px;color:var(--muted);margin-top:10px;display:flex;gap:16px}
+.kpi-sub-item{display:flex;align-items:center;gap:5px}
+.kpi-sub-dot{width:6px;height:6px;border-radius:50%}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 22px}
+.kpi-label{font-size:11px;color:var(--muted);margin-bottom:8px}
+.kpi-value{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;line-height:1}
+.kpi-value.green{color:var(--green)}.kpi-value.red{color:var(--red)}
+.kpi-meta{font-size:11px;color:var(--muted);margin-top:6px}
+.section-label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px}
+.cuentas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:24px}
+.cuenta-tile{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;border-left:3px solid var(--border)}
+.cuenta-tile-name{font-size:11px;color:var(--muted);font-weight:500;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cuenta-tile-num{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;line-height:1}
+.cuenta-tile-status{font-size:10px;margin-top:4px}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:24px}
+.chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.chart-title{font-size:13px;font-weight:600;color:var(--text)}
+.chart-tabs{display:flex;gap:4px;background:var(--bg);border-radius:7px;padding:3px}
+.chart-tab{padding:4px 12px;font-size:12px;font-weight:500;color:var(--muted);border-radius:5px;border:none;background:none;cursor:pointer;transition:all .15s}
+.chart-tab.active{background:var(--surface2);color:var(--text)}
+.chart-bars{height:160px;display:flex;align-items:flex-end;gap:6px}
+.bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%}
+.bar-track{flex:1;display:flex;align-items:flex-end;width:100%}
+.bar-fill{width:100%;border-radius:4px 4px 0 0;min-height:3px;transition:height .5s ease}
+.bar-label{font-size:9px;color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.recent-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.recent-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.recent-title{font-size:13px;font-weight:600;color:var(--text)}
+.recent-row{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--border);transition:background .1s}
+.recent-row:last-child{border-bottom:none}
+.recent-row:hover{background:var(--surface2)}
+.recent-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.recent-icon.ing{background:rgba(62,207,142,.12)}.recent-icon.eg{background:rgba(240,180,41,.1)}
+.recent-info{flex:1;min-width:0}
+.recent-main{font-size:13px;font-weight:500;color:var(--text)}
+.recent-meta{font-size:11px;color:var(--muted);margin-top:1px}
+.recent-amount{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;white-space:nowrap}
+.recent-amount.ing{color:var(--green)}.recent-amount.eg{color:var(--gold)}
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px 32px;max-width:560px}
+.tipo-switch{display:flex;background:var(--bg);border-radius:10px;padding:4px;gap:4px;margin-bottom:24px}
+.tipo-opt{flex:1;padding:10px;text-align:center;border-radius:7px;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .2s;color:var(--muted);background:none}
+.tipo-opt.active-eg{background:rgba(240,180,41,.15);color:var(--gold);box-shadow:0 0 0 1px rgba(240,180,41,.3)}
+.tipo-opt.active-ing{background:rgba(62,207,142,.12);color:var(--green);box-shadow:0 0 0 1px rgba(62,207,142,.3)}
+.field{margin-bottom:18px}
+.field-label{display:block;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.3px;margin-bottom:7px}
+.field-input{width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);outline:none;transition:border-color .2s}
+.field-input:focus{border-color:rgba(240,180,41,.5)}
+.field-select-wrap{position:relative}
+.field-select-wrap select{width:100%;padding:11px 36px 11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);outline:none}
+.field-select-wrap::after{content:'▾';position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:12px}
+.sector-preview{display:flex;align-items:center;gap:6px;margin-top:6px}
+.sector-pip{width:8px;height:8px;border-radius:2px}
+.sector-pip-lbl{font-size:11px;color:var(--muted)}
+.form-actions{display:flex;gap:10px;margin-top:8px}
+.btn-submit-eg{flex:1;padding:13px;background:var(--gold);color:#0f1117;font-size:14px;font-weight:700;border-radius:9px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-submit-ing{flex:1;padding:13px;background:var(--green);color:#0f1117;font-size:14px;font-weight:700;border-radius:9px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+button:disabled{opacity:.4;cursor:not-allowed}
+.btn-cancel{padding:13px 20px;background:var(--surface2);color:var(--muted);font-size:14px;font-weight:500;border-radius:9px;border:1px solid var(--border);cursor:pointer}
+.hist-filters{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.hist-filter{padding:7px 13px;background:var(--surface);border:1px solid var(--border);border-radius:7px;font-size:12px;color:var(--muted);outline:none;cursor:pointer}
+.hist-filter:focus{border-color:rgba(240,180,41,.4);color:var(--text)}
+.hist-summary{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.hist-count{font-size:12px;color:var(--muted)}
+.hist-totals{display:flex;gap:14px}
+.hist-total-item{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600}
+.hist-total-item.ing{color:var(--green)}.hist-total-item.eg{color:var(--gold)}
+.month-group{margin-bottom:20px}
+.month-header{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.5px;padding:0 0 8px;border-bottom:1px solid var(--border);margin-bottom:8px;display:flex;justify-content:space-between}
+.month-totals{display:flex;gap:12px}
+.month-total{font-family:'JetBrains Mono',monospace;font-size:11px}
+.month-total.ing{color:var(--green)}.month-total.eg{color:var(--gold)}
+.reg-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;transition:border-color .15s}
+.reg-row:hover{border-color:var(--surface2)}
+.reg-row.inactive{opacity:.4}
+.reg-indicator{width:3px;height:36px;border-radius:2px;flex-shrink:0}
+.reg-body{flex:1;min-width:0}
+.reg-top{display:flex;align-items:baseline;gap:8px}
+.reg-sector{font-size:13px;font-weight:600;color:var(--text)}
+.reg-sector.struck{text-decoration:line-through;color:var(--muted)}
+.reg-cuenta{font-size:10px;color:var(--muted);font-weight:500}
+.reg-bottom{font-size:11px;color:var(--muted);margin-top:2px}
+.reg-obs{font-size:11px;color:var(--muted);font-style:italic;margin-top:1px}
+.reg-ref{font-size:10px;color:var(--blue);margin-top:1px}
+.reg-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.reg-amount{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700}
+.reg-amount.ing{color:var(--green)}.reg-amount.eg{color:var(--gold)}
+.reg-amount.struck{text-decoration:line-through;color:var(--muted)}
+.badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.5px}
+.badge.activo-ing{background:rgba(62,207,142,.12);color:var(--green)}
+.badge.activo-eg{background:rgba(240,180,41,.1);color:var(--gold)}
+.badge.anulado{background:rgba(229,83,75,.1);color:var(--red)}
+.badge.correccion{background:rgba(79,142,247,.1);color:var(--blue)}
+.reg-actions{display:flex;gap:4px;flex-shrink:0}
+.reg-btn{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;transition:all .15s}
+.reg-btn:hover{color:var(--text);border-color:var(--muted)}
+.reg-btn.del:hover{color:var(--red);border-color:rgba(229,83,75,.4);background:rgba(229,83,75,.08)}
+.config-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 26px;margin-bottom:16px}
+.config-section-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:16px}
+.config-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.config-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface2);border-radius:7px;border:1px solid var(--border)}
+.config-pip{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.config-item-name{flex:1;font-size:13px;color:var(--text)}
+.config-del{width:26px;height:26px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s}
+.config-del:hover{color:var(--red);border-color:rgba(229,83,75,.4);background:rgba(229,83,75,.08)}
+.config-add-row{display:flex;gap:8px}
+.config-add-input{flex:1;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;font-size:13px;color:var(--text);outline:none}
+.config-add-input:focus{border-color:rgba(240,180,41,.4)}
+.config-add-btn{padding:9px 16px;background:rgba(240,180,41,.12);color:var(--gold);font-size:12px;font-weight:700;border-radius:7px;border:1px solid rgba(240,180,41,.2);cursor:pointer}
+.btn-save-config{width:100%;padding:13px;background:var(--gold);color:#0f1117;font-size:14px;font-weight:700;border-radius:9px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100;align-items:flex-end;justify-content:center}
+.modal-overlay.show{display:flex}
+@media(min-width:600px){.modal-overlay{align-items:center}}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px 16px 0 0;padding:24px 22px;width:100%;max-width:420px}
+@media(min-width:600px){.modal{border-radius:16px}}
+.modal-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px}
+.modal-text{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.5}
+.modal-input{width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);outline:none;margin-bottom:12px;font-family:'Inter',sans-serif}
+.modal-input:focus{border-color:rgba(240,180,41,.4)}
+.modal-actions{display:flex;gap:8px}
+.modal-cancel{flex:1;padding:11px;background:var(--surface2);color:var(--muted);font-size:13px;font-weight:500;border-radius:8px;border:1px solid var(--border);cursor:pointer}
+.modal-confirm{flex:1;padding:11px;background:rgba(229,83,75,.15);color:var(--red);font-size:13px;font-weight:700;border-radius:8px;border:1px solid rgba(229,83,75,.3);cursor:pointer}
+.modal-submit{width:100%;padding:12px;background:var(--gold);color:#0f1117;font-size:14px;font-weight:700;border-radius:8px;border:none;cursor:pointer}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:10px 18px;border-radius:10px;font-size:13px;font-weight:500;z-index:200;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transition:opacity .2s,transform .2s;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.ok{border-color:rgba(62,207,142,.3);color:var(--green)}
+#toast.err{border-color:rgba(229,83,75,.3);color:var(--red)}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-icon{font-size:36px;margin-bottom:12px;opacity:.4}
+.empty-msg{font-size:14px}
+.empty-sub{font-size:12px;margin-top:6px;opacity:.6}
+.spinner-wrap{display:flex;align-items:center;justify-content:center;gap:10px;padding:60px;color:var(--muted);font-size:13px}
+.spin{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
+.btn-spin{width:14px;height:14px;border:2px solid rgba(0,0,0,.2);border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.breakdown-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
+.breakdown-row:last-child{border-bottom:none}
+.breakdown-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.breakdown-name{flex:1;font-size:12px;color:var(--text)}
+.breakdown-track{width:90px;height:4px;background:var(--surface2);border-radius:2px;overflow:hidden}
+.breakdown-fill{height:100%;border-radius:2px}
+.breakdown-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);min-width:55px;text-align:right}
+.breakdown-pct{font-size:10px;color:var(--muted);min-width:32px;text-align:right}
+.breakdown-total{display:flex;justify-content:space-between;padding-top:8px;font-size:12px;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace}
+@media(min-width:768px){.dash-cols{display:grid;grid-template-columns:1fr 360px;gap:20px}}
+@media(max-width:767px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+  .topbar-logo{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--gold)}
+  .topbar-stock{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--gold)}
+  .topbar-stock.neg{color:var(--red)}
+  .topbar-user{font-size:12px;color:var(--muted);cursor:pointer}
+  .page{padding:16px 14px 100px}
+  .kpi-row{grid-template-columns:1fr 1fr;gap:10px}
+  .kpi-main{grid-column:1/-1}
+  .kpi-main-num{font-size:40px}
+  .cuentas-grid{grid-template-columns:1fr 1fr}
+  .form-card{padding:18px 16px}
+  .mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom,0px);z-index:20}
+  .mobile-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;color:var(--muted);cursor:pointer;border-top:2px solid transparent;transition:color .15s,border-color .15s;border:none;background:none}
+  .mobile-nav-item.active{color:var(--gold);border-top-color:var(--gold)}
+  .mobile-nav-item svg{width:18px;height:18px}
+  .mobile-nav-label{font-size:9px;font-weight:600;letter-spacing:.5px}
+  .hist-filter{font-size:11px;padding:6px 10px;flex:1;min-width:0}
+  .config-section{padding:16px 14px}
+}
+@media(min-width:768px){.mobile-nav{display:none}}
+</style>
+</head>
+<body>
+
+<div id="setup-screen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px">
+  <div style="width:100%;max-width:440px">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);letter-spacing:3px;margin-bottom:8px">GASOIL LQ</div>
+    <div style="font-size:28px;font-weight:700;color:var(--text);margin-bottom:6px">Configuración inicial</div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:32px;line-height:1.6">Conectá la app a tu planilla de Google. Solo hacés esto una vez por dispositivo.</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:12px">
+      <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:16px;letter-spacing:.5px">PASOS</div>
+      <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;color:var(--text);line-height:1.6">
+        <div><span style="color:var(--gold);font-weight:700;font-family:'JetBrains Mono',monospace;margin-right:10px">1</span>Abrí tu Google Sheets → Extensiones → Apps Script</div>
+        <div><span style="color:var(--gold);font-weight:700;font-family:'JetBrains Mono',monospace;margin-right:10px">2</span>Pegá el archivo <strong>Code.gs</strong> y guardá</div>
+        <div><span style="color:var(--gold);font-weight:700;font-family:'JetBrains Mono',monospace;margin-right:10px">3</span>Implementar → Nueva implementación → App web → Cualquier usuario</div>
+        <div><span style="color:var(--gold);font-weight:700;font-family:'JetBrains Mono',monospace;margin-right:10px">4</span>Copiá la URL y pegala abajo</div>
+      </div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:8px;letter-spacing:.3px">URL DEL APPS SCRIPT</label>
+      <input id="setup-url" type="url" placeholder="https://script.google.com/macros/s/..."
+        style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);outline:none;margin-bottom:12px;font-family:'Inter',sans-serif">
+      <button onclick="conectar()" style="width:100%;padding:13px;background:var(--gold);color:#0f1117;font-size:14px;font-weight:700;border-radius:9px;border:none;cursor:pointer;font-family:'Inter',sans-serif">
+        Conectar y abrir
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="main-app" style="display:none" class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">GASOIL LQ</div>
+      <div class="logo-name">Control de<br>Combustible</div>
+    </div>
+    <div class="sidebar-stock">
+      <div class="sidebar-stock-label">STOCK EN TANQUE</div>
+      <div class="sidebar-stock-num" id="sb-stock">0 L</div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" id="snav-dashboard" onclick="goTo('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Resumen
+      </button>
+      <button class="nav-item" id="snav-nuevo" onclick="goTo('nuevo')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Nuevo registro
+      </button>
+      <button class="nav-item" id="snav-historial" onclick="goTo('historial')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Historial
+      </button>
+      <button class="nav-item" id="snav-config" onclick="goTo('config')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>Configuración
+      </button>
+    </nav>
+    <div class="sidebar-user" onclick="cambiarNombre()">
+      <div class="user-avatar" id="sb-avatar">?</div>
+      <div><div class="user-name" id="sb-name">Campo</div><div class="user-role">Operador</div></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-logo">⛽ GASOIL LQ</div>
+      <div class="topbar-stock" id="tb-stock">0 L</div>
+      <div class="topbar-user" onclick="cambiarNombre()" id="tb-user">Campo</div>
+    </div>
+    <div class="page active" id="page-dashboard">
+      <div class="page-header"><div class="page-title">Resumen</div><div class="page-subtitle" id="dash-date">—</div></div>
+      <div id="dash-content"><div class="spinner-wrap"><div class="spin"></div> Cargando...</div></div>
+    </div>
+    <div class="page" id="page-nuevo">
+      <div class="page-header"><div class="page-title" id="nuevo-title">Nuevo registro</div></div>
+      <div id="nuevo-content"></div>
+    </div>
+    <div class="page" id="page-historial">
+      <div class="page-header"><div class="page-title">Historial</div></div>
+      <div id="hist-content"><div class="spinner-wrap"><div class="spin"></div> Cargando...</div></div>
+    </div>
+    <div class="page" id="page-config">
+      <div class="page-header"><div class="page-title">Configuración</div><div class="page-subtitle">Gestioná cuentas y sectores</div></div>
+      <div id="cfg-content"></div>
+    </div>
+  </main>
+
+  <nav class="mobile-nav">
+    <button class="mobile-nav-item active" id="mnav-dashboard" onclick="goTo('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <span class="mobile-nav-label">RESUMEN</span>
+    </button>
+    <button class="mobile-nav-item" id="mnav-nuevo" onclick="goTo('nuevo')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <span class="mobile-nav-label">NUEVO</span>
+    </button>
+    <button class="mobile-nav-item" id="mnav-historial" onclick="goTo('historial')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      <span class="mobile-nav-label">HISTORIAL</span>
+    </button>
+    <button class="mobile-nav-item" id="mnav-config" onclick="goTo('config')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>
+      <span class="mobile-nav-label">CONFIG</span>
+    </button>
+  </nav>
+</div>
+
+<div class="modal-overlay" id="modal-nombre">
+  <div class="modal">
+    <div class="modal-title">¿Quién sos?</div>
+    <div class="modal-text">Tu nombre aparece en cada registro que cargues.</div>
+    <input class="modal-input" id="nombre-input" type="text" placeholder="Tu nombre...">
+    <button class="modal-submit" onclick="guardarNombre()">Guardar</button>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal">
+    <div class="modal-title">Anular registro</div>
+    <div class="modal-text">El registro quedará marcado como anulado. El rastro queda en la planilla para auditoría.</div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal('modal-confirm');deleteId=null">Cancelar</button>
+      <button class="modal-confirm" onclick="confirmarAnular()">Anular</button>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const MESES=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+const PC=["#f0b429","#3ecf8e","#a78bfa","#4f8ef7","#f472b6","#fb923c"];
+const PS=["#f0b429","#3ecf8e","#a78bfa","#4f8ef7","#f472b6","#fb923c","#34d399","#60a5fa"];
+let SCRIPT_URL=localStorage.getItem("gasoil_url")||"";
+let EMPLEADO=localStorage.getItem("gasoil_emp")||"";
+let registros=[],config={cuentas:[],sectores:[]};
+let currentPage="dashboard",chartMode="mensual",editId=null,deleteId=null;
+let filterTipo="Todos",filterCta="Todos",filterSec="Todos",filterMes="Todos";
+
+window.onload=()=>{
+  if(SCRIPT_URL){iniciarApp();}
+  else{document.getElementById("setup-screen").style.display="flex";}
+};
+function conectar(){
+  const url=document.getElementById("setup-url").value.trim();
+  if(!url.startsWith("https://script.google.com")){showToast("URL inválida","err");return;}
+  localStorage.setItem("gasoil_url",url);location.reload();
+}
+function iniciarApp(){
+  document.getElementById("setup-screen").style.display="none";
+  document.getElementById("main-app").style.display="flex";
+  setUser(EMPLEADO||"Campo");
+  if(!EMPLEADO)setTimeout(()=>openModal("modal-nombre"),600);
+  const now=new Date();
+  document.getElementById("dash-date").textContent=MESES[now.getMonth()]+" "+now.getFullYear();
+  Promise.all([loadConfig(),loadData()]).then(()=>renderPage());
+}
+
+async function callScript(data){
+  const res=await fetch(SCRIPT_URL,{method:"POST",body:JSON.stringify(data),headers:{"Content-Type":"application/json"},redirect:"follow"});
+  const text=await res.text();
+  try{return JSON.parse(text);}catch(e){return{ok:false,error:"Respuesta inválida"};}
+}
+async function loadConfig(){try{const r=await callScript({action:"getConfig"});if(r.ok)config=r.config;}catch(e){}}
+async function loadData(){
+  try{const r=await callScript({action:"getAll"});if(r.ok){registros=r.rows||[];actualizarStockUI();}else throw new Error(r.error);}
+  catch(e){showToast("Error al cargar: "+e.message,"err");}
+}
+
+function getMesKey(f){if(!f||typeof f!=="string")return"";const m=f.match(/^(\d{4})-(\d{2})/);return m?m[1]+"-"+m[2]:"";}
+function getMesLabel(k){if(!k)return"Sin fecha";const[y,m]=k.split("-");if(!y||!m)return k;return MESES[parseInt(m)-1]+" "+y;}
+function formatFecha(f){if(!f||typeof f!=="string")return"—";const m=f.match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?m[3]+"/"+m[2]+"/"+m[1]:f;}
+function num(n){return(parseFloat(n)||0).toLocaleString("es-AR");}
+function getSC(s){const i=config.sectores.indexOf(s);return PS[i>=0?i%PS.length:0];}
+function getCC(c){const i=config.cuentas.indexOf(c);return PC[i>=0?i%PC.length:0];}
+function repSet(){return new Set(registros.filter(r=>r.estado==="anulado"||r.estado==="correccion").map(r=>r.ref).filter(Boolean));}
+function activos(){
+  const rep=repSet();
+  return registros.filter(r=>{
+    if(r.estado==="anulado")return false;
+    if(r.estado==="correccion")return true;
+    if(rep.has(r.id))return false;
+    return true;
+  });
+}
+function calcStock(){return activos().reduce((a,r)=>a+(r.tipo==="ingreso"?1:-1)*(parseFloat(r.litros)||0),0);}
+function calcStockCta(c){return activos().filter(r=>r.cuenta===c).reduce((a,r)=>a+(r.tipo==="ingreso"?1:-1)*(parseFloat(r.litros)||0),0);}
+function actualizarStockUI(){
+  const s=calcStock();
+  ["sb-stock","tb-stock"].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.textContent=(id==="sb-stock"?s.toLocaleString("es-AR"):num(s))+" L";
+    el.className=el.className.replace(/\bneg\b/g,"").trim()+(s<0?" neg":"");
+  });
+}
+function setUser(n){
+  EMPLEADO=n;
+  const av=n?n[0].toUpperCase():"?";
+  ["sb-avatar"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=av;});
+  ["sb-name","tb-user"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=n;});
+}
+
+function goTo(page){
+  currentPage=page;
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("page-"+page).classList.add("active");
+  ["dashboard","nuevo","historial","config"].forEach(p=>{
+    const s=document.getElementById("snav-"+p);if(s)s.classList.remove("active");
+    const m=document.getElementById("mnav-"+p);if(m)m.classList.remove("active");
+  });
+  const s=document.getElementById("snav-"+page);if(s)s.classList.add("active");
+  const m=document.getElementById("mnav-"+page);if(m)m.classList.add("active");
+  if(page!=="nuevo")editId=null;
+  if(page==="config")window._cfgEdit=null;
+  renderPage();
+}
+function renderPage(){
+  if(currentPage==="dashboard")renderDashboard();
+  else if(currentPage==="nuevo")renderNuevo();
+  else if(currentPage==="historial")renderHistorial();
+  else if(currentPage==="config")renderConfig();
+}
+
+function renderDashboard(){
+  const now=new Date(),mesKey=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
+  const mes=activos().filter(r=>getMesKey(r.fecha)===mesKey);
+  const egMes=mes.filter(r=>r.tipo!=="ingreso").reduce((a,r)=>a+(parseFloat(r.litros)||0),0);
+  const ingMes=mes.filter(r=>r.tipo==="ingreso").reduce((a,r)=>a+(parseFloat(r.litros)||0),0);
+  const stock=calcStock();
+  const totIng=activos().filter(r=>r.tipo==="ingreso").reduce((a,r)=>a+(parseFloat(r.litros)||0),0);
+  const totEg=activos().filter(r=>r.tipo!=="ingreso").reduce((a,r)=>a+(parseFloat(r.litros)||0),0);
+
+  let html=`<div class="kpi-row">
+    <div class="kpi-main">
+      <div class="kpi-main-label">STOCK TOTAL EN TANQUE</div>
+      <div class="kpi-main-num ${stock<0?"neg":""}">${num(stock)}<span class="kpi-main-unit">L</span></div>
+      <div class="kpi-main-sub">
+        <div class="kpi-sub-item"><div class="kpi-sub-dot" style="background:var(--green)"></div><span>↑ ${num(totIng)} L ingresados</span></div>
+        <div class="kpi-sub-item"><div class="kpi-sub-dot" style="background:var(--gold)"></div><span>↓ ${num(totEg)} L despachados</span></div>
+      </div>
+    </div>
+    <div class="kpi"><div class="kpi-label">EGRESOS ESTE MES</div><div class="kpi-value red">↓ ${num(egMes)}</div><div class="kpi-meta">litros despachados</div></div>
+    <div class="kpi"><div class="kpi-label">INGRESOS ESTE MES</div><div class="kpi-value green">↑ ${num(ingMes)}</div><div class="kpi-meta">litros recibidos</div></div>
+  </div>`;
+
+  if(config.cuentas.length){
+    html+=`<div class="section-label">Saldo por cuenta</div><div class="cuentas-grid">`;
+    config.cuentas.forEach((cta,i)=>{
+      const s=calcStockCta(cta),c=PC[i%PC.length];
+      html+=`<div class="cuenta-tile" style="border-left-color:${c}">
+        <div class="cuenta-tile-name">${cta}</div>
+        <div class="cuenta-tile-num" style="color:${s<0?"var(--red)":c}">${num(s)} L</div>
+        <div class="cuenta-tile-status" style="color:${s<0?"var(--red)":"var(--muted)"}">${s>=0?"disponible":"déficit"}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  html+=`<div class="dash-cols"><div>`;
+  html+=`<div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-title">Consumo (egresos)</div>
+      <div class="chart-tabs">
+        <button class="chart-tab ${chartMode==="mensual"?"active":""}" onclick="setChart('mensual')">Mes</button>
+        <button class="chart-tab ${chartMode==="sector"?"active":""}" onclick="setChart('sector')">Sector</button>
+        <button class="chart-tab ${chartMode==="cuenta"?"active":""}" onclick="setChart('cuenta')">Cuenta</button>
+      </div>
+    </div>${renderChart()}</div>`;
+
+  const ult=[...activos()].sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||"")).slice(0,6);
+  if(ult.length){
+    html+=`<div class="recent-card"><div class="recent-header"><div class="recent-title">Últimos movimientos</div></div>`;
+    ult.forEach(r=>{
+      const esIng=r.tipo==="ingreso";
+      html+=`<div class="recent-row">
+        <div class="recent-icon ${esIng?"ing":"eg"}">${esIng?"🛢":"⛽"}</div>
+        <div class="recent-info">
+          <div class="recent-main">${esIng?"Ingreso":r.sector}${r.cuenta?` <span style="color:var(--muted);font-size:11px">· ${r.cuenta}</span>`:""}</div>
+          <div class="recent-meta">${formatFecha(r.fecha)} · ${r.empleado||"—"}</div>
+        </div>
+        <div class="recent-amount ${esIng?"ing":"eg"}">${esIng?"+":""}${num(r.litros)} L</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+  html+=`</div><div>`;
+
+  const tots={};config.sectores.forEach(s=>tots[s]=0);
+  activos().filter(r=>r.tipo!=="ingreso").forEach(r=>{tots[r.sector]=(tots[r.sector]||0)+(parseFloat(r.litros)||0);});
+  const totalEg=Object.values(tots).reduce((a,b)=>a+b,0);
+  if(totalEg>0){
+    html+=`<div class="chart-card"><div class="chart-title" style="margin-bottom:16px">Distribución por sector</div>`;
+    config.sectores.filter(s=>tots[s]>0).sort((a,b)=>tots[b]-tots[a]).forEach(s=>{
+      const pct=totalEg>0?(tots[s]/totalEg*100):0;
+      const col=PS[config.sectores.indexOf(s)%PS.length];
+      html+=`<div class="breakdown-row">
+        <div class="breakdown-dot" style="background:${col}"></div>
+        <div class="breakdown-name">${s}</div>
+        <div class="breakdown-track"><div class="breakdown-fill" style="width:${pct}%;background:${col}"></div></div>
+        <div class="breakdown-val">${num(tots[s])} L</div>
+        <div class="breakdown-pct">${pct.toFixed(0)}%</div>
+      </div>`;
+    });
+    html+=`<div class="breakdown-total"><span>Total</span><span>${num(totalEg)} L</span></div></div>`;
+  }
+  html+=`</div></div>`;
+  document.getElementById("dash-content").innerHTML=html;
+}
+
+function setChart(m){chartMode=m;renderDashboard();}
+function renderChart(){
+  if(chartMode==="mensual"){
+    const months={};
+    activos().filter(r=>r.tipo!=="ingreso").forEach(r=>{const k=getMesKey(r.fecha);if(!k)return;months[k]=(months[k]||0)+(parseFloat(r.litros)||0);});
+    const data=Object.entries(months).sort((a,b)=>a[0].localeCompare(b[0])).slice(-9);
+    if(!data.length)return`<div class="empty" style="padding:20px"><div class="empty-msg">Sin datos</div></div>`;
+    const max=Math.max(...data.map(d=>d[1]),1);
+    return`<div class="chart-bars">${data.map(([k,v])=>`<div class="bar-group"><div class="bar-track"><div class="bar-fill" style="height:${Math.max(v/max*100,2)}%;background:var(--gold);opacity:.85"></div></div><div class="bar-label">${getMesLabel(k)}</div></div>`).join("")}</div>`;
+  }
+  if(chartMode==="sector"){
+    const tots={};config.sectores.forEach(s=>tots[s]=0);
+    activos().filter(r=>r.tipo!=="ingreso").forEach(r=>{tots[r.sector]=(tots[r.sector]||0)+(parseFloat(r.litros)||0);});
+    const data=config.sectores.filter(s=>tots[s]>0);
+    if(!data.length)return`<div class="empty" style="padding:20px"><div class="empty-msg">Sin datos</div></div>`;
+    const max=Math.max(...data.map(s=>tots[s]),1);
+    return`<div class="chart-bars">${data.map(s=>`<div class="bar-group"><div class="bar-track"><div class="bar-fill" style="height:${Math.max(tots[s]/max*100,2)}%;background:${PS[config.sectores.indexOf(s)%PS.length]}"></div></div><div class="bar-label">${s}</div></div>`).join("")}</div>`;
+  }
+  const tots={};config.cuentas.forEach(c=>tots[c]=0);
+  activos().filter(r=>r.tipo!=="ingreso").forEach(r=>{if(r.cuenta)tots[r.cuenta]=(tots[r.cuenta]||0)+(parseFloat(r.litros)||0);});
+  const data=config.cuentas.filter(c=>tots[c]>0);
+  if(!data.length)return`<div class="empty" style="padding:20px"><div class="empty-msg">Sin datos por cuenta</div></div>`;
+  const max=Math.max(...data.map(c=>tots[c]),1);
+  return`<div class="chart-bars">${data.map(c=>`<div class="bar-group"><div class="bar-track"><div class="bar-fill" style="height:${Math.max(tots[c]/max*100,2)}%;background:${PC[config.cuentas.indexOf(c)%PC.length]}"></div></div><div class="bar-label">${c}</div></div>`).join("")}</div>`;
+}
+
+function renderNuevo(){
+  document.getElementById("nuevo-title").textContent=editId?"Editar registro":"Nuevo registro";
+  const hoy=new Date().toISOString().split("T")[0];
+  const f=window._fd||{fecha:hoy,tipo:"egreso",cuenta:"",sector:config.sectores[0]||"",litros:"",obs:""};
+  window._fd=f;
+  const esEg=f.tipo!=="ingreso";
+  const ctaOpts=`<option value="">— Sin asignar —</option>`+config.cuentas.map(c=>`<option value="${c}" ${c===f.cuenta?"selected":""}>${c}</option>`).join("");
+  const secOpts=config.sectores.map(s=>`<option value="${s}" ${s===f.sector?"selected":""}>${s}</option>`).join("");
+  document.getElementById("nuevo-content").innerHTML=`
+  <div class="form-card">
+    <div class="tipo-switch">
+      <button class="tipo-opt ${esEg?"active-eg":""}" onclick="setTipo('egreso')">⬇ Egreso (despacho)</button>
+      <button class="tipo-opt ${!esEg?"active-ing":""}" onclick="setTipo('ingreso')">⬆ Ingreso (llenado)</button>
+    </div>
+    <div class="field"><label class="field-label">Cuenta / Empresa</label>
+      <div class="field-select-wrap"><select id="f-cuenta" onchange="upd('cuenta',this.value)">${ctaOpts}</select></div></div>
+    <div class="field"><label class="field-label">Fecha</label>
+      <input type="date" class="field-input" id="f-fecha" value="${f.fecha}" oninput="upd('fecha',this.value)"></div>
+    ${esEg?`<div class="field"><label class="field-label">Sector / Consumidor</label>
+      <div class="field-select-wrap"><select id="f-sector" onchange="upd('sector',this.value)">${secOpts}</select></div>
+      <div class="sector-preview" id="sec-prev"><div class="sector-pip" style="background:${getSC(f.sector)}"></div><div class="sector-pip-lbl">${f.sector}</div></div></div>`
+    :`<div class="field"><label class="field-label">Proveedor / Origen (opcional)</label>
+      <input type="text" class="field-input" id="f-sector" placeholder="Ej: YPF, cisterna..." value="${f.sector||""}" oninput="upd('sector',this.value)"></div>`}
+    <div class="field"><label class="field-label">Litros</label>
+      <input type="number" inputmode="decimal" class="field-input" id="f-litros" placeholder="0" value="${f.litros}" oninput="upd('litros',this.value)"></div>
+    <div class="field"><label class="field-label">Observación (opcional)</label>
+      <input type="text" class="field-input" id="f-obs" placeholder="${esEg?"Tractor, cosechadora...":"Cisterna, proveedor..."}" value="${f.obs||""}" oninput="upd('obs',this.value)"></div>
+    <div class="form-actions">
+      ${editId?`<button class="btn-cancel" onclick="cancelarEdicion()">Cancelar</button>`:""}
+      <button class="${esEg?"btn-submit-eg":"btn-submit-ing"}" id="btn-submit" onclick="guardar()">
+        ${editId?"Guardar cambios":(esEg?"Registrar egreso":"Registrar ingreso")}
+      </button>
+    </div>
+  </div>`;
+}
+function setTipo(tipo){window._fd=window._fd||{};window._fd.tipo=tipo;if(tipo==="ingreso")window._fd.sector="";else if(!window._fd.sector)window._fd.sector=config.sectores[0]||"";renderNuevo();}
+function upd(f,v){window._fd=window._fd||{};window._fd[f]=v;if(f==="sector"){const p=document.getElementById("sec-prev");if(p)p.innerHTML=`<div class="sector-pip" style="background:${getSC(v)}"></div><div class="sector-pip-lbl">${v}</div>`;}}
+function cancelarEdicion(){editId=null;window._fd=null;renderNuevo();}
+async function guardar(){
+  const f=window._fd||{};const litros=parseFloat(f.litros);
+  if(!f.fecha||!litros||litros<=0){showToast("Completá fecha y litros","err");return;}
+  const btn=document.getElementById("btn-submit");
+  btn.disabled=true;btn.innerHTML=`<div class="btn-spin"></div> Guardando...`;
+  const payload={action:editId?"corregir":"add",fecha:f.fecha,tipo:f.tipo||"egreso",cuenta:f.cuenta||"",sector:f.sector||(f.tipo==="ingreso"?"":config.sectores[0]||""),litros,obs:f.obs||"",empleado:EMPLEADO||"Campo"};
+  if(editId)payload.id=editId;
+  try{
+    const res=await callScript(payload);
+    if(res.ok){showToast(editId?"Registro corregido ✓":(f.tipo==="ingreso"?"Ingreso registrado ✓":"Egreso registrado ✓"),"ok");editId=null;window._fd=null;await loadData();goTo("historial");}
+    else throw new Error(res.error);
+  }catch(e){showToast("Error: "+(e.message||e),"err");btn.disabled=false;btn.innerHTML=editId?"Guardar cambios":(f.tipo==="ingreso"?"Registrar ingreso":"Registrar egreso");}
+}
+
+function renderHistorial(){
+  const meses=[...new Set(registros.map(r=>getMesKey(r.fecha)).filter(Boolean))].sort((a,b)=>b.localeCompare(a));
+  const mesOpts=`<option value="Todos">Todos los meses</option>`+meses.map(m=>`<option value="${m}" ${m===filterMes?"selected":""}>${getMesLabel(m)}</option>`).join("");
+  const secOpts=`<option value="Todos">Sectores</option>`+config.sectores.map(s=>`<option value="${s}" ${s===filterSec?"selected":""}>${s}</option>`).join("");
+  const ctaOpts=`<option value="Todos">Cuentas</option>`+config.cuentas.map(c=>`<option value="${c}" ${c===filterCta?"selected":""}>${c}</option>`).join("");
+  const rep=repSet();
+  const fil=registros.filter(r=>(filterSec==="Todos"||r.sector===filterSec)&&(filterMes==="Todos"||getMesKey(r.fecha)===filterMes)&&(filterTipo==="Todos"||(filterTipo==="egreso"&&r.tipo!=="ingreso")||(filterTipo==="ingreso"&&r.tipo==="ingreso"))&&(filterCta==="Todos"||r.cuenta===filterCta)).sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||""));
+  const filEg=fil.filter(r=>!rep.has(r.id)&&r.estado!=="anulado"&&r.tipo!=="ingreso").reduce((a,r)=>a+(parseFloat(r.litros)||0),0);
+  const filIng=fil.filter(r=>!rep.has(r.id)&&r.estado!=="anulado"&&r.tipo==="ingreso").reduce((a,r)=>a+(parseFloat(r.litros)||0),0);
+
+  let html=`<div class="hist-filters">
+    <select class="hist-filter" style="max-width:100px" onchange="filterTipo=this.value;renderHistorial()"><option value="Todos">Todos</option><option value="egreso" ${filterTipo==="egreso"?"selected":""}>Egresos</option><option value="ingreso" ${filterTipo==="ingreso"?"selected":""}>Ingresos</option></select>
+    <select class="hist-filter" onchange="filterCta=this.value;renderHistorial()">${ctaOpts}</select>
+    <select class="hist-filter" onchange="filterSec=this.value;renderHistorial()">${secOpts}</select>
+    <select class="hist-filter" onchange="filterMes=this.value;renderHistorial()">${mesOpts}</select>
+  </div>
+  <div class="hist-summary">
+    <div class="hist-count">${fil.length} registro${fil.length!==1?"s":""}</div>
+    <div class="hist-totals">${filIng>0?`<div class="hist-total-item ing">↑ ${num(filIng)} L</div>`:""}<div class="hist-total-item eg">↓ ${num(filEg)} L</div></div>
+  </div>`;
+
+  if(!fil.length){html+=`<div class="empty"><div class="empty-icon">⛽</div><div class="empty-msg">${registros.length===0?"Cargá el primer registro":"Sin resultados"}</div><div class="empty-sub">${registros.length===0?"":"Cambiá los filtros"}</div></div>`;document.getElementById("hist-content").innerHTML=html;return;}
+
+  const grupos={};
+  fil.forEach(r=>{const k=getMesKey(r.fecha)||"sin-fecha";if(!grupos[k])grupos[k]=[];grupos[k].push(r);});
+  Object.entries(grupos).sort((a,b)=>b[0].localeCompare(a[0])).forEach(([mes,regs])=>{
+    const eg=regs.filter(r=>!rep.has(r.id)&&r.estado!=="anulado"&&r.tipo!=="ingreso").reduce((a,r)=>a+(parseFloat(r.litros)||0),0);
+    const ing=regs.filter(r=>!rep.has(r.id)&&r.estado!=="anulado"&&r.tipo==="ingreso").reduce((a,r)=>a+(parseFloat(r.litros)||0),0);
+    html+=`<div class="month-group"><div class="month-header"><span>${getMesLabel(mes)}</span><div class="month-totals">${ing>0?`<span class="month-total ing">↑${num(ing)}</span>`:""}<span class="month-total eg">↓${num(eg)} L</span></div></div>`;
+    regs.forEach(r=>{
+      const esIng=r.tipo==="ingreso",esRemp=rep.has(r.id),esAnul=r.estado==="anulado",esCorr=r.estado==="correccion";
+      const inactivo=esRemp||esAnul;
+      const indColor=esAnul?"var(--red)":esCorr?"var(--blue)":esIng?"var(--green)":getSC(r.sector);
+      const badge=esAnul?`<span class="badge anulado">ANULADO</span>`:esCorr?`<span class="badge correccion">CORRECCIÓN</span>`:esIng?`<span class="badge activo-ing">INGRESO</span>`:`<span class="badge activo-eg">EGRESO</span>`;
+      html+=`<div class="reg-row ${inactivo?"inactive":""}">
+        <div class="reg-indicator" style="background:${indColor}"></div>
+        <div class="reg-body">
+          <div class="reg-top"><span class="reg-sector ${inactivo?"struck":""}">${esIng?"🛢 Ingreso":r.sector}</span>${r.cuenta?`<span class="reg-cuenta" style="color:${getCC(r.cuenta)}">· ${r.cuenta}</span>`:""}</div>
+          <div class="reg-bottom">${formatFecha(r.fecha)}${r.empleado?" · "+r.empleado:""}</div>
+          ${r.obs&&r.obs!=="undefined"?`<div class="reg-obs">${r.obs}</div>`:""}
+          ${esCorr&&r.ref?`<div class="reg-ref">↩ corrige ${r.ref.slice(-8)}</div>`:""}
+          ${esAnul&&r.ref?`<div class="reg-ref" style="color:var(--red)">✕ anula ${r.ref.slice(-8)}</div>`:""}
+        </div>
+        <div class="reg-right">
+          <div class="reg-amount ${esIng?"ing":"eg"} ${inactivo?"struck":""}">${esIng?"+":""}${num(r.litros)} L</div>${badge}
+        </div>
+        ${!inactivo?`<div class="reg-actions"><button class="reg-btn" data-id="${r.id}" onclick="editarReg(this.dataset.id)" title="Corregir">✎</button><button class="reg-btn del" data-id="${r.id}" onclick="pedirAnular(this.dataset.id)" title="Anular">✕</button></div>`:`<div style="width:64px"></div>`}
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+  document.getElementById("hist-content").innerHTML=html;
+}
+
+function editarReg(id){
+  if(!id||id==="null"){showToast("ID inválido","err");return;}
+  const r=registros.find(x=>String(x.id).trim()===String(id).trim());
+  if(!r){showToast("Registro no encontrado","err");return;}
+  if(r.estado==="anulado"){showToast("No se puede editar un registro anulado","err");return;}
+  editId=id;window._fd={fecha:r.fecha,tipo:r.tipo||"egreso",cuenta:r.cuenta||"",sector:r.sector||"",litros:String(r.litros),obs:r.obs||""};goTo("nuevo");
+}
+function pedirAnular(id){
+  if(!id||id==="null"){showToast("ID inválido","err");return;}
+  const r=registros.find(x=>String(x.id).trim()===String(id).trim());
+  if(!r){showToast("Registro no encontrado","err");return;}
+  if(r.estado==="anulado"){showToast("Ya fue anulado","err");return;}
+  deleteId=String(id).trim();openModal("modal-confirm");
+}
+async function confirmarAnular(){
+  const id=deleteId;closeModal("modal-confirm");deleteId=null;
+  if(!id){showToast("ID vacío","err");return;}
+  try{const res=await callScript({action:"anular",id,empleado:EMPLEADO||"Campo"});if(res.ok){showToast("Registro anulado","ok");await loadData();renderHistorial();}else throw new Error(res.error);}
+  catch(e){showToast("Error: "+(e.message||e),"err");}
+}
+
+function renderConfig(){
+  if(!window._cfgEdit)window._cfgEdit=JSON.parse(JSON.stringify(config));
+  const cfg=window._cfgEdit;
+  const rl=(key,label,emoji,paleta)=>`<div class="config-section">
+    <div class="config-section-title">${emoji} ${label}</div>
+    <div class="config-list">${(cfg[key]||[]).map((item,i)=>`<div class="config-item"><div class="config-pip" style="background:${paleta[i%paleta.length]}"></div><div class="config-item-name">${item}</div><button class="config-del" onclick="cfgDel('${key}',${i})">✕</button></div>`).join("")}</div>
+    <div class="config-add-row"><input class="config-add-input" id="cfg-inp-${key}" type="text" placeholder="Agregar..."><button class="config-add-btn" onclick="cfgAdd('${key}')">+ Agregar</button></div>
+  </div>`;
+  document.getElementById("cfg-content").innerHTML=
+    rl("cuentas","Cuentas / Empresas","🏢",PC)+
+    rl("sectores","Sectores / Consumidores","🚜",PS)+
+    `<div style="position:sticky;bottom:0;padding:8px 0;background:var(--bg)"><button class="btn-save-config" id="cfg-save" onclick="guardarConfig()">Guardar configuración</button></div>`;
+}
+function cfgDel(key,i){window._cfgEdit[key].splice(i,1);renderConfig();}
+function cfgAdd(key){
+  const v=document.getElementById("cfg-inp-"+key).value.trim();
+  if(!v){showToast("Escribí un nombre","err");return;}
+  if(window._cfgEdit[key].includes(v)){showToast("Ya existe","err");return;}
+  window._cfgEdit[key].push(v);renderConfig();
+}
+async function guardarConfig(){
+  const btn=document.getElementById("cfg-save");btn.disabled=true;btn.innerHTML=`<div class="btn-spin"></div> Guardando...`;
+  try{const res=await callScript({action:"saveConfig",config:window._cfgEdit});if(res.ok){await loadConfig();window._cfgEdit=null;showToast("Configuración guardada ✓","ok");renderConfig();}else throw new Error(res.error);}
+  catch(e){showToast("Error: "+(e.message||e),"err");btn.disabled=false;btn.innerHTML="Guardar configuración";}
+}
+
+function cambiarNombre(){document.getElementById("nombre-input").value=EMPLEADO||"";openModal("modal-nombre");}
+function guardarNombre(){
+  const n=document.getElementById("nombre-input").value.trim();
+  if(!n){showToast("Escribí tu nombre","err");return;}
+  localStorage.setItem("gasoil_emp",n);setUser(n);closeModal("modal-nombre");showToast("Hola, "+n+"!","ok");
+}
+function openModal(id){document.getElementById(id).classList.add("show");}
+function closeModal(id){document.getElementById(id).classList.remove("show");}
+document.addEventListener("click",e=>{["modal-nombre","modal-confirm"].forEach(id=>{const el=document.getElementById(id);if(el&&el.classList.contains("show")&&e.target===el)closeModal(id);});});
+let _tt;
+function showToast(msg,type="ok"){const t=document.getElementById("toast");t.textContent=msg;t.className="show "+type;clearTimeout(_tt);_tt=setTimeout(()=>{t.className="";},2800);}
+</script>
+</body>
+</html>
